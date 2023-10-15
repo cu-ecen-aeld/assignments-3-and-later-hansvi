@@ -50,6 +50,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 fi
 
 echo "Adding the Image in outdir"
+cp ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ${OUTDIR}
 
 ROOTFS=${OUTDIR}/rootfs
 
@@ -103,9 +104,9 @@ ${CROSS_COMPILE}readelf -a ${ROOTFS}/bin/busybox | grep "Shared library"
 # Add library dependencies to rootfs
 for lib in lib/ld-linux-aarch64.so.1 lib64/libm.so.6 lib64/libresolv.so.2 lib64/libc.so.6
 do
-	if ! cp $SYSROOT/$lib $ROOTFS/lib
+	if ! cp $SYSROOT/${lib} $ROOTFS/${lib}
 	then
-		echo "Could not copy file $lib"
+		echo "Could not copy file ${lib}"
 	fi
 done
 
@@ -117,7 +118,9 @@ make clean
 make CROSS_COMPILE=${CROSS_COMPILE}
 # Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
-for file in finder.sh writer.sh writer
+mkdir ${ROOTFS}/home/conf
+
+for file in finder.sh writer.sh writer autorun-qemu.sh finder-test.sh conf/username.txt conf/assignment.txt
 do
 	if ! cp ${FINDER_APP_DIR}/${file} ${ROOTFS}/home/${file}
 	then
